@@ -22,7 +22,7 @@ ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} foobar.iso /image/live.iso
 
 ## Running
 
-Set the following environment variables to control runtime parameters. See the [`Dockerfile`](Dockerfile) for the complete list.
+Set the following environment variables to control runtime parameters. See the [`Dockerfile`](Dockerfile) for a complete list of environment variables.
 
 * `QEMU_CPU` - the number of CPU cores for QEMU (default `2`)
 * `QEMU_RAM` - the megabytes of RAM for QEMU (default `1024`)
@@ -44,7 +44,8 @@ $ docker run --detach --publish-all --rm --device /dev/kvm ghcr.io/mmguero/qemu-
 fdaea77d8c383edc0689dd710b0df5c1187ad75b0b429e3ee56061d29fa6488c
 
 $ docker ps -a | grep qemu-live-iso
-fdaea77d8c38   ghcr.io/mmguero/qemu-live-iso      "/usr/bin/supervisor…"   10 seconds ago   Up 8 seconds    0.0.0.0:49170->22/tcp, 0.0.0.0:49169->5900/tcp, 0.0.0.0:49174->8000/tcp   competent_black
+fdaea77d8c38   ghcr.io/mmguero/qemu-live-iso      "/usr/bin/supervisor…"   10 seconds ago   Up 8 seconds    0.0.0.0:49190->22/tcp, 0.0.0.0:49169->5900/tcp, 0.0.0.0:49174->8000/tcp, 0.0.0.0:49191->8081/tcp   competent_black
+
 ```
 
 The VNC service is the one mapped to `5900/tcp`, and can be connected to with your VNC client of choice (`vncviewer`, `remmina`, etc.):
@@ -55,10 +56,14 @@ $ remmina vnc://localhost:49169
 
 ![](./.screenshots/vnc.png)
 
-The HTTP service is the one mapped to `8000/tcp`, and can be accessed with a web browser:
+Alternately, an HTML VNC client ([noVNC](https://github.com/novnc/noVNC)) can be accessed via your browser at `http://localhost:XXXXX/vnc_auto.html`, where `XXXXX` is the port mapped to `8081/tcp`:
 
-```
-$ sensible-browser http://localhost:49174
-```
+![](./.screenshots/novnc.png)
+
+The HTTP service (for downloading the ISO) is the one mapped to `8000/tcp`, and can be accessed with a web browser:
 
 ![](./.screenshots/web.png)
+
+## Security
+
+Note that none of the service mentioned above are encrypted or otherwise secured. This image is intended for testing or internal use only, and may not be suitable for production use.
