@@ -32,22 +32,22 @@ Set the following environment variables to control runtime parameters. See the [
 Additionally, you may bind mount your ISO as `/image/live.iso` in the container to boot your own ISO without rebuilding the Docker image:
 
 ```
-$ docker run -d -P --rm --device /dev/kvm -v /path/to/foobar.iso:/image/live.iso ghcr.io/mmguero/qemu-live-iso:latest
+$ docker run --detach --publish-all --rm --device /dev/kvm --volume /path/to/foobar.iso:/image/live.iso ghcr.io/mmguero/qemu-live-iso:latest
 ```
 
 QEMU can take advantage of KVM acceleration if available. This can be accomplished by including `--device /dev/kvm` as illustrated in the example above.
 
-Execute `docker run` with `-P` and connect to the mapped HTTP and VNC ports to access the services provided by the container:
+Execute `docker run` with `--publish-all` (`-P`) and connect to the mapped HTTP and VNC ports to access the services provided by the container:
 
 ```
-$ docker run -d -P --rm --device /dev/kvm ghcr.io/mmguero/qemu-live-iso:latest
+$ docker run --detach --publish-all --rm --device /dev/kvm ghcr.io/mmguero/qemu-live-iso:latest
 fdaea77d8c383edc0689dd710b0df5c1187ad75b0b429e3ee56061d29fa6488c
 
 $ docker ps -a | grep qemu-live-iso
 fdaea77d8c38   ghcr.io/mmguero/qemu-live-iso      "/usr/bin/supervisor…"   10 seconds ago   Up 8 seconds    0.0.0.0:49170->22/tcp, 0.0.0.0:49169->5900/tcp, 0.0.0.0:49174->8000/tcp   competent_black
 ```
 
-The VNC service is the one mapped to `5900/tcp`, and can be connected to with `vncviewer`, `remmina`, etc.:
+The VNC service is the one mapped to `5900/tcp`, and can be connected to with your VNC client of choice (`vncviewer`, `remmina`, etc.):
 
 ```
 $ remmina vnc://localhost:49169
@@ -59,7 +59,6 @@ The HTTP service is the one mapped to `8000/tcp`, and can be accessed with a web
 
 ```
 $ sensible-browser http://localhost:49174
-
 ```
 
 ![](./.screenshots/web.png)
