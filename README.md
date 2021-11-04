@@ -48,6 +48,8 @@ fdaea77d8c38   ghcr.io/mmguero/qemu-live-iso      "/usr/bin/supervisor…"   10 
 
 ```
 
+### VNC client access
+
 The VNC service is the one mapped to `5900/tcp`, and can be connected to with your VNC client of choice (`vncviewer`, `remmina`, etc.):
 
 ```
@@ -56,9 +58,13 @@ $ remmina vnc://localhost:49169
 
 ![](./.screenshots/vnc.png)
 
+### VNC HTTP access
+
 Alternately, an HTML VNC client ([noVNC](https://github.com/novnc/noVNC)) can be accessed via your browser at `http://localhost:XXXXX/vnc_auto.html`, where `XXXXX` is the port mapped to `8081/tcp`:
 
 ![](./.screenshots/novnc.png)
+
+### ISO HTTP download
 
 The HTTP service (for downloading the ISO) is the one mapped to `8000/tcp`, and can be accessed with a web browser:
 
