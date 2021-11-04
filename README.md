@@ -72,4 +72,4 @@ The HTTP service (for downloading the ISO) is the one mapped to `8000/tcp`, and 
 
 ## Security
 
-Note that none of the service mentioned above are encrypted or otherwise secured. This image is intended for testing or internal use only, and may not be suitable for production use.
+Note that none of the services mentioned above are encrypted or otherwise secured. This image is intended for testing or internal use only, and may not be suitable for production use.
