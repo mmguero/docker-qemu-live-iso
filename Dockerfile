@@ -54,8 +54,8 @@ RUN apt-get -q update && \
       chown -R ${DEFAULT_UID}:${DEFAULT_GID} /deblive && \
       chmod 750 /deblive
 
-ADD supervisord.conf /etc/supervisord.conf
-ADD $ISO_URL $QEMU_CDROM
+ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} supervisord.conf /etc/supervisord.conf
+ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} $ISO_URL $QEMU_CDROM
 
 EXPOSE $HTTP_SERVER_PORT
 
