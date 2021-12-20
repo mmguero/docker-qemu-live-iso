@@ -1,5 +1,7 @@
 # docker-qemu-live-iso
 
+![Docker Image](https://github.com/mmguero/docker-qemu-live-iso/workflows/iso-build-docker-wrap-push-ghcr/badge.svg)
+
 This Docker image serves two purposes:
 
 1. Boots a live ISO image in QEMU (based on [`tianon/qemu:native`](https://github.com/tianon/docker-qemu))
