@@ -7,19 +7,25 @@ on:
   workflow_dispatch:
   repository_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/qemu-live-iso
+  IMAGE_TAG: latest
+  IMAGE_PLATFORM: linux/amd64
+  REPO_CONTEXT: .
+  REPO_CONTAINERFILE: ./Dockerfile
+
 jobs:
-  build:
+  buildah:
     runs-on: ubuntu-latest
     permissions:
       actions: write
       packages: write
       contents: read
-    defaults:
-      run:
-        shell: bash
     steps:
       -
         name: Cancel previous run in progress
+        id: cancel-previous-runs
         uses: styfle/cancel-workflow-action@0.9.1
         with:
           ignore_sha: true
@@ -27,22 +33,37 @@ jobs:
           access_token: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Checkout
+        id: repo-checkout
         uses: actions/checkout@v2
       -
-        name: Docker build setup
-        uses: docker/setup-buildx-action@v1
+        name: Set up QEMU
+        id: setup-qemu
+        uses: docker/setup-qemu-action@v2
       -
-        name: ghcr.io login
-        uses: docker/login-action@v1
+        name: Log in to registry
+        id: registry-login
+        uses: redhat-actions/podman-login@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Build and push server image
-        uses: docker/build-push-action@v2
+        name: Build
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/qemu-live-iso:latest
+          image: ${{ env.IMAGE_NAME }}
+          tags: ${{ env.IMAGE_TAG }}
+          context: ${{ env.REPO_CONTEXT }}
+          containerfiles: |
+            ${{ env.REPO_CONTAINERFILE }}
+          platforms: |
+            ${{ env.IMAGE_PLATFORM }}
+      -
+        name: Push
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
