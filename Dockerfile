@@ -4,7 +4,7 @@ LABEL maintainer="mero.mero.guero@gmail.com"
 LABEL org.opencontainers.image.authors='mero.mero.guero@gmail.com'
 LABEL org.opencontainers.image.url='https://github.com/mmguero/docker-qemu-live-iso'
 LABEL org.opencontainers.image.source='https://github.com/mmguero/docker-qemu-live-iso'
-LABEL org.opencontainers.image.title='ghcr.io/mmguero/qemu-live-iso'
+LABEL org.opencontainers.image.title='oci.guero.top/qemu-live-iso'
 LABEL org.opencontainers.image.description='A docker image hosting a live ISO image in QEMU'
 
 ENV DEBIAN_FRONTEND noninteractive
