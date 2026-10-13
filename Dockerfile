@@ -1,4 +1,4 @@
-FROM FROM ghcr.io/mmguero/qemu@sha256:8f1ec584f3546b06b93cb3bcaa485544673fb29df6016c6f7202839341d46e88
+FROM ghcr.io/mmguero/qemu@sha256:8f1ec584f3546b06b93cb3bcaa485544673fb29df6016c6f7202839341d46e88
 
 LABEL maintainer="mero.mero.guero@gmail.com"
 LABEL org.opencontainers.image.authors='mero.mero.guero@gmail.com'
