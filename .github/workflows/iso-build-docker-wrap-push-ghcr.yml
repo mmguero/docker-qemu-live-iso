@@ -13,7 +13,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/qemu-live-iso
   IMAGE_TAG: latest
-  IMAGE_ARCH: amd64
+  # comma-separated; more than one produces a multi-platform image index
+  IMAGE_ARCH: amd64,arm64
   REPO_CONTEXT: .
   REPO_CONTAINERFILE: ./Dockerfile
 concurrency:
@@ -30,9 +31,12 @@ jobs:
       - name: Checkout
         id: repo-checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      # QEMU user-mode emulation lets the amd64 runner build the arm64 image
       - name: Set up QEMU
         id: setup-qemu
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
       - name: Log in to registry
         id: registry-login
         uses: redhat-actions/podman-login@v1
