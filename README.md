@@ -4,14 +4,14 @@
 
 This Docker image serves two purposes:
 
-1. Boots a live ISO image in QEMU (based on [`tianon/qemu:native`](https://github.com/tianon/docker-qemu))
+1. Boots a live ISO image in QEMU (based on [`ghcr.io/mmguero/qemu:native`](https://github.com/mmguero/docker-qemu), a fork of [`tianon/docker-qemu`](https://github.com/tianon/docker-qemu))
 2. Provides an HTTP server from which the ISO itself can be downloaded
 
 ## Platforms
 
 The image is published for `linux/amd64` and `linux/arm64` as a single multi-platform tag, so `docker pull` selects the right one for the host.
 
-The HTTP download server works the same on both. QEMU itself comes from [`tianon/qemu:native`](https://github.com/tianon/docker-qemu), which contains only the emulator for the host's own architecture: on `amd64` it boots x86 ISOs, and on `arm64` it boots arm64 ISOs. An x86 ISO, including the default Tiny Core example, will not boot in the `arm64` image.
+QEMU comes from [`ghcr.io/mmguero/qemu:native`](https://github.com/mmguero/docker-qemu), which contains only the system emulator for the host's own architecture: `qemu-system-x86_64` on `amd64` and `qemu-system-aarch64` on `arm64`. Use an x86 ISO with the `amd64` image and an arm64 ISO with the `arm64` image. The default Tiny Core example is an x86 ISO and will not boot in the `arm64` image. The HTTP download server works the same on both.
 
 ## Customizing the Docker image
 
