@@ -13,54 +13,67 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/qemu-live-iso
   IMAGE_TAG: latest
-  # comma-separated; more than one produces a multi-platform image index
-  IMAGE_ARCH: amd64,arm64
-  REPO_CONTEXT: .
-  REPO_CONTAINERFILE: ./Dockerfile
 concurrency:
   group: qemu-live-iso-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  buildah:
-    runs-on: ubuntu-latest
+  # Build each platform natively on its own runner (no emulation), smoke-test
+  # and scan it, then push it under an arch-specific tag.
+  docker:
+    runs-on: ${{ matrix.os }}
     permissions:
       packages: write
       contents: read
       security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: amd64
+            platform: linux/amd64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            platform: linux/arm64
+    env:
+      # job-level env can't read the workflow-level env, so spell it out here
+      ARCH_TAG: ghcr.io/${{ github.repository_owner }}/qemu-live-iso:latest-${{ matrix.arch }}
     steps:
       - name: Checkout
-        id: repo-checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      # QEMU user-mode emulation lets the amd64 runner build the arm64 image
-      - name: Set up QEMU
-        id: setup-qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
       - name: Log in to registry
-        id: registry-login
-        uses: redhat-actions/podman-login@v1
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
-        id: build-image
-        uses: redhat-actions/buildah-build@v2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
         with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: ${{ env.IMAGE_TAG }}
-          context: ${{ env.REPO_CONTEXT }}
-          containerfiles: ${{ env.REPO_CONTAINERFILE }}
-          archs: ${{ env.IMAGE_ARCH }}
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          provenance: false
+          load: true
+          push: false
+          tags: ${{ env.ARCH_TAG }}
+      - name: Smoke test
+        run: |
+          docker run --rm --entrypoint sh "$ARCH_TAG" -c '
+            set -e
+            uname -m
+            python3 --version
+            for c in supervisord websockify x11vnc Xvfb; do command -v "$c"; done'
       - name: Run Trivy vulnerability scanner
-        id: trivy-scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         env:
           TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db,public.ecr.aws/aquasecurity/trivy-db
         with:
           scan-type: 'image'
-          image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          image-ref: ${{ env.ARCH_TAG }}
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'HIGH,CRITICAL'
@@ -73,10 +86,32 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+          category: trivy-${{ matrix.arch }}
       - name: Push
-        id: push-to-ghcr
-        uses: redhat-actions/push-to-registry@v2
+        if: github.event_name != 'pull_request'
+        run: docker push "$ARCH_TAG"
+
+  # Combine the per-platform images into one multi-platform index
+  manifest:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.event_name != 'pull_request'
+    permissions:
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd
+      - name: Log in to registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
         with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create multi-platform manifest
+        run: |
+          docker buildx imagetools create \
+            -t "$IMAGE_NAME:$IMAGE_TAG" \
+            "$IMAGE_NAME:$IMAGE_TAG-amd64" \
+            "$IMAGE_NAME:$IMAGE_TAG-arm64"
+      - name: Show manifest
+        run: docker buildx imagetools inspect "$IMAGE_NAME:$IMAGE_TAG"
