@@ -73,6 +73,7 @@ RUN apt-get -q update && \
       chmod 750 /deblive
 
 ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} supervisord.conf /etc/supervisord.conf
+ADD --chmod=755 start-qemu-live /usr/local/bin/start-qemu-live
 ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} $ISO_URL $QEMU_CDROM
 
 EXPOSE $HTTP_SERVER_PORT

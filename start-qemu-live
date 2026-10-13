@@ -1,0 +1,26 @@
+#!/bin/bash
+set -e
+
+# tianon's start-qemu assumes x86 defaults. On aarch64 add a machine type,
+# UEFI firmware, a display and input devices (so VNC shows something), and
+# attach the CD-ROM over virtio-scsi, since the "virt" machine has no IDE.
+args=()
+if [ "$(uname -m)" = "aarch64" ]; then
+  args+=(
+    -M virt -cpu max
+    -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd
+    -device virtio-gpu-pci
+    -device qemu-xhci -device usb-kbd -device usb-tablet
+  )
+  if [ -n "${QEMU_CDROM:-}" ]; then
+    args+=(
+      -drive "file=$QEMU_CDROM,media=cdrom,if=none,id=cdrom,readonly=on"
+      -device virtio-scsi-pci,id=scsi-cd
+      -device scsi-cd,drive=cdrom,bus=scsi-cd.0
+    )
+    # keep start-qemu from also adding "-cdrom", which fails on "virt"
+    unset QEMU_CDROM
+  fi
+fi
+
+exec /usr/local/bin/start-qemu "${args[@]}" "$@"
