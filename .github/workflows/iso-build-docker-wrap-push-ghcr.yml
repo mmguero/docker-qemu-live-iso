@@ -67,6 +67,13 @@ jobs:
             uname -m
             python3 --version
             for c in supervisord websockify; do command -v "$c"; done'
+      - name: Boot test
+        run: |
+          docker run --rm --entrypoint bash "$ARCH_TAG" -c '
+            timeout 20 start-qemu-live -display none </dev/null
+            rc=$?
+            echo "start-qemu-live exit status: $rc"
+            [ "$rc" -eq 124 ]'
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         env:
