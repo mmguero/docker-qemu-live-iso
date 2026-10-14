@@ -28,8 +28,6 @@ ARG QEMU_BOOT="order=d"
 ARG QEMU_START="true"
 ARG QEMU_RESTART="true"
 ARG NOVNC_START="true"
-ARG DISPLAY_WIDTH=1920
-ARG DISPLAY_HEIGHT=1080
 ARG HTTP_SERVER_PORT=8000
 ARG NOVNC_SERVER_PORT=8081
 
@@ -44,12 +42,9 @@ ENV QEMU_RESTART $QEMU_RESTART
 ENV HTTP_SERVER_PORT $HTTP_SERVER_PORT
 ENV NOVNC_SERVER_PORT $NOVNC_SERVER_PORT
 
-ENV DISPLAY_WIDTH $DISPLAY_WIDTH
-ENV DISPLAY_HEIGHT $DISPLAY_HEIGHT
 ENV LANG "en_US.UTF-8"
 ENV LANGUAGE "en_US.UTF-8"
 ENV LC_ALL "C.UTF-8"
-ENV DISPLAY ":0.0"
 
 RUN apt-get -q update && \
     apt-get install --no-install-recommends -y -q \
@@ -58,10 +53,7 @@ RUN apt-get -q update && \
       procps \
       psmisc \
       python3-minimal \
-      supervisor \
-      x11vnc \
-      xterm \
-      xvfb && \
+      supervisor && \
     apt-get -y autoremove -qq && \
     apt-get clean && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* && \

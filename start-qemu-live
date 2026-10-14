@@ -23,4 +23,7 @@ if [ "$(uname -m)" = "aarch64" ]; then
   fi
 fi
 
+# let the browser (noVNC) and direct VNC clients connect at the same time
+export QEMU_NO_VNC=1
+args+=( -vnc :0,share=force-shared )
 exec /usr/local/bin/start-qemu "${args[@]}" "$@"
