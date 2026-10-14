@@ -4,12 +4,12 @@
 ARG TARGETARCH
 
 FROM scratch AS iso-amd64
-# Tiny Core Linux (x86)
-ADD --checksum=sha256:0539cbcadc241e529c368ffefb2dd63676ea09f2b7a49706f61b81f83889223d http://tinycorelinux.net/17.x/x86/archive/17.0/TinyCore-17.0.iso /live.iso
+# Alpine Linux "virt" (x86_64)
+ADD --checksum=sha256:3ab424762af704b2c2a9e57df1dc37f982af260071504d977f2fb96822e7130b https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-virt-3.24.2-x86_64.iso /live.iso
 
 FROM scratch AS iso-arm64
 # Alpine Linux "virt" (aarch64)
-ADD --checksum=sha256:834469887c99227230e981cc8a5b66571f5eab98f12c6a675f9ea0dd640b7866 https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-virt-3.24.0-aarch64.iso /live.iso
+ADD --checksum=sha256:a57ba668b5f6b17a670fcf8e799d5d7fe43766ed086d6ce2927b0625bf43dbf6 https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-virt-3.24.2-aarch64.iso /live.iso
 
 FROM iso-${TARGETARCH} AS iso
 
