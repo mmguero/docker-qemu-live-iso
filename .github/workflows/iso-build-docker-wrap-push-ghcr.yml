@@ -66,7 +66,7 @@ jobs:
             set -e
             uname -m
             python3 --version
-            for c in supervisord websockify x11vnc Xvfb; do command -v "$c"; done'
+            for c in supervisord websockify; do command -v "$c"; done'
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         env:
