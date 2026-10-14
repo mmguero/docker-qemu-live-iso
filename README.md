@@ -15,7 +15,7 @@ QEMU comes from [`ghcr.io/mmguero/qemu:native`](https://github.com/mmguero/docke
 
 ## Customizing the Docker image
 
-By default this image is built with [Tiny Core Linux](http://www.tinycorelinux.net/) ISO as an example. Modify the `ISO_URL` argument when building the image to provide your own ISO URL. Or, create a child Dockerfile based on this image to add a local ISO:
+By default this image is built with [Tiny Core Linux](http://www.tinycorelinux.net/) ISO (for amd64) or [Alpine Linux "virt" ISO]() (for arm64) embedded as an example. Modify the `ISO_URL` argument when building the image to provide your own ISO URL. Or, create a child Dockerfile based on this image to add a local ISO:
 
 ```
 FROM oci.guero.org/qemu-live-iso:latest

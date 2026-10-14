@@ -1,3 +1,18 @@
+# Bundled live ISO for each platform. BuildKit only builds the stage selected
+# for the target platform, so each image downloads just its own ISO.
+# To update: change the URL, then set --checksum to the file's SHA-256.
+ARG TARGETARCH
+
+FROM scratch AS iso-amd64
+# Tiny Core Linux (x86)
+ADD --checksum=sha256:0539cbcadc241e529c368ffefb2dd63676ea09f2b7a49706f61b81f83889223d http://tinycorelinux.net/17.x/x86/archive/17.0/TinyCore-17.0.iso /live.iso
+
+FROM scratch AS iso-arm64
+# Alpine Linux "virt" (aarch64)
+ADD --checksum=sha256:834469887c99227230e981cc8a5b66571f5eab98f12c6a675f9ea0dd640b7866 https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-virt-3.24.0-aarch64.iso /live.iso
+
+FROM iso-${TARGETARCH} AS iso
+
 FROM ghcr.io/mmguero/qemu@sha256:8f1ec584f3546b06b93cb3bcaa485544673fb29df6016c6f7202839341d46e88
 
 LABEL maintainer="mero.mero.guero@gmail.com"
@@ -17,8 +32,6 @@ ENV DEFAULT_UID $DEFAULT_UID
 ENV DEFAULT_GID $DEFAULT_GID
 ENV PUSER "user"
 ENV PGROUP "user"
-
-ARG ISO_URL="http://www.tinycorelinux.net/12.x/x86/release/TinyCore-current.iso"
 
 ARG QEMU_CPU=2
 ARG QEMU_RAM=1024
@@ -66,10 +79,9 @@ RUN apt-get -q update && \
 
 ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} supervisord.conf /etc/supervisord.conf
 ADD --chmod=755 start-qemu-live /usr/local/bin/start-qemu-live
-ADD --chown=${DEFAULT_UID}:${DEFAULT_GID} $ISO_URL $QEMU_CDROM
+COPY --from=iso --chown=${DEFAULT_UID}:${DEFAULT_GID} /live.iso $QEMU_CDROM
 
 EXPOSE $HTTP_SERVER_PORT
 EXPOSE $NOVNC_SERVER_PORT
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf", "-u", "root", "-n"]
-
