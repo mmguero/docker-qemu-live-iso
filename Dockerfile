@@ -13,7 +13,7 @@ ADD --checksum=sha256:a57ba668b5f6b17a670fcf8e799d5d7fe43766ed086d6ce2927b0625bf
 
 FROM iso-${TARGETARCH} AS iso
 
-FROM ghcr.io/mmguero/qemu@sha256:3185b5aa1bc33b9735b0c9cfdf72ee09bcc3e176b31c0a94a3558e75467a87b0
+FROM ghcr.io/mmguero/qemu@sha256:7237f582da1cbb2b62597b168b6f5841663b60204babf98b17ddedcd73748f55
 
 LABEL maintainer="mero.mero.guero@gmail.com"
 LABEL org.opencontainers.image.authors='mero.mero.guero@gmail.com'
